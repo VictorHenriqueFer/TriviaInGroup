@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from './trivia.png';
+import Routes from './routes/routes';
 import './App.css';
 
 export default function App() {
@@ -9,6 +10,7 @@ export default function App() {
         <img src={ logo } className="App-logo" alt="logo" />
         <p>SUA VEZ</p>
       </header>
+      <Routes />
     </div>
   );
 }
