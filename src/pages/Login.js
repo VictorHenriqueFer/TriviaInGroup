@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
+import { setPlayerName, setGravatarEmail } from '../Redux/actions';
 
 function Login() {
   const [nameId, setName] = useState('');
@@ -21,19 +22,26 @@ function Login() {
     setEmail(newEmail);
     setPlayDisabled(nameId === '' || newEmail === '');
   };
+
   const fetchToken = async () => {
     const response = await fetch('https://opentdb.com/api_token.php?command=request');
     const data = await response.json();
-    return data;
+    return data.token;
   };
 
   const handlePlayClick = async () => {
     dispatch(setPlayerName(nameId));
     dispatch(setGravatarEmail(email));
-    const tokenData = await fetchToken();
-    localStorage.setItem('token', JSON.stringify(tokenData));
-    history.push('/game');
+
+    try {
+      const token = await fetchToken();
+      localStorage.setItem('token', token);
+      history.push('/game');
+    } catch (error) {
+      console.log('Erro ao buscar token:', error);
+    }
   };
+
   const handleSettingClick = () => {
     history.push('/settings');
   };
@@ -77,4 +85,5 @@ function Login() {
     </div>
   );
 }
+
 export default connect()(Login);
