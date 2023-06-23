@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, connect } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 function Login() {
-  const [name, setName] = useState('');
+  const [nameId, setName] = useState('');
   const [email, setEmail] = useState('');
   const [playDisabled, setPlayDisabled] = useState(true);
 
@@ -19,13 +19,23 @@ function Login() {
   const handleEmailChange = (event) => {
     const newEmail = event.target.value;
     setEmail(newEmail);
-    setPlayDisabled(name === '' || newEmail === '');
+    setPlayDisabled(nameId === '' || newEmail === '');
+  };
+  const fetchToken = async () => {
+    const response = await fetch('https://opentdb.com/api_token.php?command=request');
+    const data = await response.json();
+    return data;
   };
 
-  const handlePlayClick = () => {
-    dispatch(setPlayerName(name));
+  const handlePlayClick = async () => {
+    dispatch(setPlayerName(nameId));
     dispatch(setGravatarEmail(email));
+    const tokenData = await fetchToken();
+    localStorage.setItem('token', JSON.stringify(tokenData));
     history.push('/game');
+  };
+  const handleSettingClick = () => {
+    history.push('/settings');
   };
 
   return (
@@ -36,7 +46,7 @@ function Login() {
         <input
           type="text"
           id="name"
-          value={ name }
+          value={ nameId }
           onChange={ handleNameChange }
           data-testid="input-player-name"
         />
@@ -58,8 +68,13 @@ function Login() {
       >
         Play
       </button>
+      <button
+        data-testid="btn-settings"
+        onClick={ handleSettingClick }
+      >
+        Configuração
+      </button>
     </div>
   );
 }
-
-export default Login;
+export default connect()(Login);
