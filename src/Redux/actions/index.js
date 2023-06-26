@@ -1,6 +1,7 @@
 const GET_USER_TOKEN = 'GET_USER_TOKEN';
 const SET_USER_NAME = 'SET_USER_NAME';
 const SET_USER_EMAIL = 'SET_USER_EMAIL';
+const SET_USER_SCORE = 'SET_USER_SCORE';
 
 const getPlay = (gettoken) => ({
   type: GET_USER_TOKEN,
@@ -16,12 +17,12 @@ const setGravatarEmail = (email) => ({
   type: SET_USER_EMAIL,
   email,
 });
-export const SET_SCORE = 'SET_SCORE';
 
-export const setScore = (score) => ({
-  type: SET_SCORE,
+const setScore = (score) => ({
+  type: SET_USER_SCORE,
   score,
 });
 
-export { getPlay, setPlayerName, setGravatarEmail,
-  GET_USER_TOKEN, SET_USER_NAME, SET_USER_EMAIL };
+export { getPlay, setPlayerName, setGravatarEmail, setScore,
+  SET_USER_SCORE,
+  GET_USER_TOKEN, SET_USER_NAME, SET_USER_EMAIL, SET_SCORE, };

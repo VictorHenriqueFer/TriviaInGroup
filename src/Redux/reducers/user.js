@@ -1,4 +1,4 @@
-import { SET_USER_EMAIL, SET_USER_NAME, SET_SCORE } from '../actions';
+import { SET_USER_EMAIL, SET_USER_NAME, SET_USER_SCORE } from '../actions';
 
 const initialState = {
   email: '',
@@ -12,7 +12,7 @@ const user = (state = initialState, action) => {
     return { ...state, email: action.email };
   case SET_USER_NAME:
     return { ...state, nameId: action.nameId };
-  case SET_SCORE:
+  case SET_USER_SCORE:
     return { ...state, score: action.score };
   default:
     return state;

@@ -1,89 +1,99 @@
-import React, { useState } from 'react';
-import { useDispatch, connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import { setPlayerName, setGravatarEmail } from '../Redux/actions';
 
-function Login() {
-  const [nameId, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [playDisabled, setPlayDisabled] = useState(true);
+class Login extends Component {
+  state = {
+    email: '',
+    isValidEmail: false,
+    nameId: '',
 
-  const dispatch = useDispatch();
-  const history = useHistory();
-
-  const handleNameChange = (event) => {
-    const newName = event.target.value;
-    setName(newName);
-    setPlayDisabled(newName === '' || email === '');
   };
 
-  const handleEmailChange = (event) => {
-    const newEmail = event.target.value;
-    setEmail(newEmail);
-    setPlayDisabled(nameId === '' || newEmail === '');
+  handleChange = ({ target }) => {
+    const { email } = this.state;
+    const { name, value } = target;
+    this.setState(
+      { [name]: value },
+      this.setState(() => ({
+        isValidEmail: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email),
+      })),
+    );
   };
 
-  const fetchToken = async () => {
+  fetchToken = async () => {
     const response = await fetch('https://opentdb.com/api_token.php?command=request');
     const data = await response.json();
     return data.token;
   };
 
-  const handlePlayClick = async () => {
+  handlePlayClick = async (e) => {
+    e.preventDefault();
+    const { history, dispatch } = this.props;
+    const { nameId, email } = this.state;
     dispatch(setPlayerName(nameId));
     dispatch(setGravatarEmail(email));
-
-    try {
-      const token = await fetchToken();
-      localStorage.setItem('token', token);
-      history.push('/game');
-    } catch (error) {
-      console.log('Erro ao buscar token:', error);
-    }
+    const token = await this.fetchToken();
+    localStorage.setItem('token', token);
+    history.push('/game');
   };
 
-  const handleSettingClick = () => {
+  handleSettingClick = (e) => {
+    e.preventDefault();
+    const { history } = this.props;
     history.push('/settings');
-  };
+    };
 
-  return (
-    <div>
-      <h1>Login</h1>
+  render() {
+    const { nameId, email, isValidEmail } = this.state;
+    const minName = 0;
+    return (
       <div>
-        <label htmlFor="name">Name:</label>
-        <input
-          type="text"
-          id="name"
-          value={ nameId }
-          onChange={ handleNameChange }
-          data-testid="input-player-name"
-        />
+        <h1>Login</h1>
+        <div>
+          <label htmlFor="name">Name:</label>
+          <input
+            data-testid="input-player-name"
+            type="name"
+            name="nameId"
+            value={ nameId }
+            onChange={ this.handleChange }
+          />
+        </div>
+        <div>
+          <label htmlFor="email">Email:</label>
+          <input
+            data-testid="input-gravatar-email"
+            type="email"
+            name="email"
+            value={ email }
+            onChange={ this.handleChange }
+          />
+        </div>
+        <button
+          onClick={ this.handlePlayClick }
+          disabled={ !(nameId.length > minName && isValidEmail) }
+          data-testid="btn-play"
+        >
+          Play
+        </button>
+        <button
+          data-testid="btn-settings"
+          onClick={ this.handleSettingClick }
+        >
+          Configuração
+        </button>
       </div>
-      <div>
-        <label htmlFor="email">Email:</label>
-        <input
-          type="email"
-          id="email"
-          value={ email }
-          onChange={ handleEmailChange }
-          data-testid="input-gravatar-email"
-        />
-      </div>
-      <button
-        onClick={ handlePlayClick }
-        disabled={ playDisabled }
-        data-testid="btn-play"
-      >
-        Play
-      </button>
-      <button
-        data-testid="btn-settings"
-        onClick={ handleSettingClick }
-      >
-        Configuração
-      </button>
-    </div>
-  );
+    );
+  }
 }
+
+Login.propTypes = {
+  history: PropTypes.shape({
+    push: PropTypes.func,
+  }).isRequired,
+  dispatch: PropTypes.func.isRequired,
+};
 
 export default connect()(Login);

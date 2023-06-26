@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import Header from '../Components/Header';
 
-function Settings() {
-  return (
-    <div>
-      <h2 data-testid="settings-title">Configuração</h2>
-    </div>
-  );
+class Settings extends Component {
+  render() {
+    return (
+      <div>
+        <Header />
+        <h2 data-testid="settings-title">Configuração</h2>
+      </div>
+    );
+  }
 }
 
-export default Settings;
+export default connect()(Settings);
