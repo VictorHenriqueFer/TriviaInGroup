@@ -1,29 +1,39 @@
-import React from 'react';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import md5 from 'crypto-js/md5';
-import { useSelector } from 'react-redux';
 
-function Header() {
-  const { nameId } = useSelector((state) => state.player);
-  return (
-    <header>
-      {nameemail && (
+class Header extends Component {
+  render() {
+    const { email, nameId, score } = this.props;
+    const hash = md5(email).toString();
+    const imageGravatar = `https://www.gravatar.com/avatar/${hash}`;
+    return (
+      <header>
         <img
           data-testid="header-profile-picture"
-          src={ `https://www.gravatar.com/avatar/${md5(nameemail).toString()}` }
+          src={ imageGravatar }
           alt={ nameId }
         />
-      )}
-      {nameId && <h3 data-testid="header-player-name">{nameId}</h3>}
-      <h4>
-        Score:
-        {' '}
-        {headerscore}
-      </h4>
-      <h4 data-testid="header-score">
-        {headerscore}
-      </h4>
-    </header>
-  );
+        <h3 data-testid="header-player-name">{nameId}</h3>
+        <h4 data-testid="header-score">
+          Score:
+          {' '}
+          {score}
+        </h4>
+      </header>
+    );
+  }
 }
+const mapStateToProps = (state) => ({
+  email: state.user.email,
+  nameId: state.user.nameId,
+});
 
-export default Header;
+Header.propTypes = {
+  email: PropTypes.string.isRequired,
+  nameId: PropTypes.string.isRequired,
+  score: PropTypes.number.isRequired,
+};
+
+export default connect(mapStateToProps)(Header);
