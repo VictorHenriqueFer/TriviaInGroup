@@ -12,22 +12,22 @@ class Header extends Component {
       <header>
         <img
           data-testid="header-profile-picture"
-          src={ imageGravatar }
-          alt={ nameId }
+          src={imageGravatar}
+          alt={nameId}
         />
         <h3 data-testid="header-player-name">{nameId}</h3>
         <h4 data-testid="header-score">
-          Score:
-          {' '}
-          {score}
+          Score: {score}
         </h4>
       </header>
     );
   }
 }
+
 const mapStateToProps = (state) => ({
   email: state.user.email,
   nameId: state.user.nameId,
+  score: state.score,
 });
 
 Header.propTypes = {

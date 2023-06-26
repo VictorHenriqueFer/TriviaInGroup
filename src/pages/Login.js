@@ -43,7 +43,7 @@ class Login extends Component {
     e.preventDefault();
     const { history } = this.props;
     history.push('/settings');
-  };
+    };
 
   render() {
     const { nameId, email, isValidEmail } = this.state;
@@ -88,6 +88,7 @@ class Login extends Component {
     );
   }
 }
+
 Login.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,

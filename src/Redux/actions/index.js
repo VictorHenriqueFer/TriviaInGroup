@@ -17,6 +17,7 @@ const setGravatarEmail = (email) => ({
   type: SET_USER_EMAIL,
   email,
 });
+
 const setScore = (score) => ({
   type: SET_USER_SCORE,
   score,
@@ -24,4 +25,4 @@ const setScore = (score) => ({
 
 export { getPlay, setPlayerName, setGravatarEmail, setScore,
   SET_USER_SCORE,
-  GET_USER_TOKEN, SET_USER_NAME, SET_USER_EMAIL };
+  GET_USER_TOKEN, SET_USER_NAME, SET_USER_EMAIL, SET_SCORE, };

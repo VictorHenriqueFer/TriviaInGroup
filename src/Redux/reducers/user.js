@@ -1,12 +1,12 @@
 import { SET_USER_EMAIL, SET_USER_NAME, SET_USER_SCORE } from '../actions';
 
-const InitialState = {
+const initialState = {
   email: '',
   nameId: '',
   score: 0,
 };
 
-const user = (state = InitialState, action) => {
+const user = (state = initialState, action) => {
   switch (action.type) {
   case SET_USER_EMAIL:
     return { ...state, email: action.email };
