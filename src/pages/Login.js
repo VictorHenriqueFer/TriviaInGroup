@@ -5,20 +5,15 @@ import { setPlayerName, setGravatarEmail } from '../Redux/actions';
 
 class Login extends Component {
   state = {
-    email: '',
-    isValidEmail: false,
-    nameId: '',
+    gravatarEmail: '',
+    name: '',
 
   };
 
   handleChange = ({ target }) => {
-    const { email } = this.state;
     const { name, value } = target;
     this.setState(
       { [name]: value },
-      this.setState(() => ({
-        isValidEmail: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email),
-      })),
     );
   };
 
@@ -31,9 +26,9 @@ class Login extends Component {
   handlePlayClick = async (e) => {
     e.preventDefault();
     const { history, dispatch } = this.props;
-    const { nameId, email } = this.state;
-    dispatch(setPlayerName(nameId));
-    dispatch(setGravatarEmail(email));
+    const { name, gravatarEmail } = this.state;
+    dispatch(setPlayerName(name));
+    dispatch(setGravatarEmail(gravatarEmail));
     const token = await this.fetchToken();
     localStorage.setItem('token', token);
     history.push('/game');
@@ -43,10 +38,10 @@ class Login extends Component {
     e.preventDefault();
     const { history } = this.props;
     history.push('/settings');
-    };
+  };
 
   render() {
-    const { nameId, email, isValidEmail } = this.state;
+    const { name, gravatarEmail } = this.state;
     const minName = 0;
     return (
       <div>
@@ -56,8 +51,8 @@ class Login extends Component {
           <input
             data-testid="input-player-name"
             type="name"
-            name="nameId"
-            value={ nameId }
+            name="name"
+            value={ name }
             onChange={ this.handleChange }
           />
         </div>
@@ -66,14 +61,14 @@ class Login extends Component {
           <input
             data-testid="input-gravatar-email"
             type="email"
-            name="email"
-            value={ email }
+            name="gravatarEmail"
+            value={ gravatarEmail }
             onChange={ this.handleChange }
           />
         </div>
         <button
           onClick={ this.handlePlayClick }
-          disabled={ !(nameId.length > minName && isValidEmail) }
+          disabled={ !(name.length > minName && /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(gravatarEmail)) }
           data-testid="btn-play"
         >
           Play
