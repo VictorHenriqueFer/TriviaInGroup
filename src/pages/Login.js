@@ -34,8 +34,8 @@ class Login extends Component {
     history.push('/game');
   };
 
-  handleSettingClick = (e) => {
-    e.preventDefault();
+  handleSettingClick = (event) => {
+    event.preventDefault();
     const { history } = this.props;
     history.push('/settings');
   };
@@ -46,26 +46,30 @@ class Login extends Component {
     return (
       <div>
         <h1>Login</h1>
-        <div>
-          <label htmlFor="name">Name:</label>
-          <input
-            data-testid="input-player-name"
-            type="name"
-            name="name"
-            value={ name }
-            onChange={ this.handleChange }
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
-            data-testid="input-gravatar-email"
-            type="email"
-            name="gravatarEmail"
-            value={ gravatarEmail }
-            onChange={ this.handleChange }
-          />
-        </div>
+        <form>
+          <label htmlFor="name">
+            Name:
+            <input
+              id="name"
+              data-testid="input-player-name"
+              type="name"
+              name="name"
+              value={ name }
+              onChange={ this.handleChange }
+            />
+          </label>
+          <label htmlFor="email">
+            Email:
+            <input
+              id="email"
+              data-testid="input-gravatar-email"
+              type="email"
+              name="gravatarEmail"
+              value={ gravatarEmail }
+              onChange={ this.handleChange }
+            />
+          </label>
+        </form>
         <button
           onClick={ this.handlePlayClick }
           disabled={ !(name.length > minName && /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(gravatarEmail)) }

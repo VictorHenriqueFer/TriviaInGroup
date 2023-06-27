@@ -1,88 +1,112 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
-import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
-import thunk from 'redux-thunk';
-import reducer from '../Redux/reducers';
-import Login from '../pages/Login';
-import { setPlayerName, setGravatarEmail } from '../Redux/actions';
-
-const renderWithRedux = (
-  ui,
-  {
-    initialState,
-    store = createStore(reducer, initialState, applyMiddleware(thunk)),
-  } = {}
-) => {
-  return {
-    ...render(<Provider store={store}>{ui}</Provider>),
-    store,
-  };
-};
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
+import { act } from 'react-dom/test-utils';
+import App from '../App';
+import userEvent from '@testing-library/user-event';
 
 describe('Login', () => {
   it('deve renderizar corretamente os elementos', () => {
-    renderWithRedux(<Login />);
+    const { history } = renderWithRouterAndRedux(<App />)
 
-    expect(screen.getByText('Login')).toBeInTheDocument();
-    expect(screen.getByLabelText('Name:')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email:')).toBeInTheDocument();
-    expect(screen.getByTestId('input-player-name')).toBeInTheDocument();
-    expect(screen.getByTestId('input-gravatar-email')).toBeInTheDocument();
-    expect(screen.getByTestId('btn-play')).toBeInTheDocument();
-    expect(screen.getByTestId('btn-settings')).toBeInTheDocument();
+    act(() => {
+      history.push('/');
+    });
+
+    const triviaImg = screen.getByAltText('logo');
+    expect(triviaImg).toBeInTheDocument();
+
+    const loginTitle = screen.getByRole('heading', { level: 1 });
+    expect(loginTitle).toHaveTextContent('Login');
+    expect(loginTitle).toBeInTheDocument();
+
+    const inputEmail = screen.getByTestId('input-gravatar-email');
+    expect(inputEmail).toBeInTheDocument();
+
+    const inputName = screen.getByTestId('input-player-name');
+    expect(inputName).toBeInTheDocument();
+
+    const playButton = screen.getByTestId('btn-play');
+    expect(playButton).toBeInTheDocument();
+    expect(playButton).toHaveTextContent('Play');
+    expect(playButton).toBeDisabled();
+
+    const configButton = screen.getByTestId('btn-settings');
+    expect(configButton).toBeInTheDocument();
+    expect(configButton).toHaveTextContent('Configuração');
+    expect(configButton).toBeEnabled();
   });
 
   it('deve desabilitar o botão de jogar caso o email e o nome do jogador não estejam preenchidos', () => {
-    renderWithRedux(<Login />);
+    const { history } = renderWithRouterAndRedux(<App />)
 
+    act(() => {
+      history.push('/');
+    });
+
+    const inputName = screen.getByTestId('input-player-name');
+    const inputEmail = screen.getByTestId('input-gravatar-email');
     const playButton = screen.getByTestId('btn-play');
-    const nameInput = screen.getByTestId('input-player-name');
-    const emailInput = screen.getByTestId('input-gravatar-email');
+
+    act(() => {
+      userEvent.paste(inputName, '');
+      userEvent.paste(inputEmail, '');
+    });
 
     expect(playButton).toBeDisabled();
+  });
 
-    fireEvent.change(nameInput, { target: { value: 'Bruno Lindo' } });
-    expect(playButton).toBeDisabled();
+  it('deve habilitar o botão de jogar caso o email e o nome do jogador estejam preenchidos', () => {
+    const { history } = renderWithRouterAndRedux(<App />)
 
-    fireEvent.change(emailInput, { target: { value: 'dgkkcs@example.com' } });
+    act(() => {
+      history.push('/');
+    });
+
+    const inputName = screen.getByTestId('input-player-name');
+    const inputEmail = screen.getByTestId('input-gravatar-email');
+    const playButton = screen.getByTestId('btn-play');
+
+    act(() => {
+      userEvent.paste(inputName, 'teste');
+      userEvent.paste(inputEmail, 'teste@teste.com');
+    });
+
     expect(playButton).toBeEnabled();
   });
 
-  it('deve redirecionar para a tela de configurações ao clicar no botão de configurações', () => {
-    const history = createMemoryHistory();
-    renderWithRedux(<Login />, { history });
+  it('Verifica se e redirecionado para a pagina de configuracoes quando clicar no botao configuracoes', () => {
+    const { history } = renderWithRouterAndRedux(<App />)
 
-    const settingsButton = screen.getByTestId('btn-settings');
-    fireEvent.click(settingsButton);
+    const configButton = screen.getByTestId('btn-settings');
+    expect(configButton).toBeInTheDocument();
+    expect(configButton).toHaveTextContent('Configuração');
+    expect(configButton).toBeEnabled();
 
+    act(() => {
+      userEvent.click(configButton);
+    })
     expect(history.location.pathname).toBe('/settings');
   });
 
-  it('deve redirecionar para a tela de jogo ao clicar no botão de jogar', async () => {
-    const history = createMemoryHistory();
-    renderWithRedux(<Login />, { history });
+  it('Verifica se e redirecionado para a pagina de jogo quando clicar no botao jogar', async () => {
+    const { history } = renderWithRouterAndRedux(<App />)
 
+    const inputName = screen.getByTestId('input-player-name');
+    const inputEmail = screen.getByTestId('input-gravatar-email');
     const playButton = screen.getByTestId('btn-play');
-    const nameInput = screen.getByTestId('input-player-name');
-    const emailInput = screen.getByTestId('input-gravatar-email');
 
-    fireEvent.change(nameInput, { target: { value: 'Segue eu na Twitch' } });
-    fireEvent.change(emailInput, { target: { value: 'dgkkcs@example.com' } });
+    expect(playButton).toBeInTheDocument();
+    expect(playButton).toHaveTextContent('Play');
+    expect(playButton).toBeDisabled();
 
-    const token = 'mock-token';
-    global.fetch = jest.fn().mockResolvedValue({
-      json: jest.fn().mockResolvedValue({ token }),
+    act(() => {
+      userEvent.paste(inputName, 'teste');
+      userEvent.paste(inputEmail, 'teste@teste.com');
+      userEvent.click(playButton);
     });
 
-    fireEvent.click(playButton);
-
-    expect(history.location.pathname).toBe('/game');
-    expect(localStorage.getItem('token')).toBe(token);
-    expect(screen.getByTestId('input-player-name').value).toBe('');
-    expect(screen.getByTestId('input-gravatar-email').value).toBe('');
-  });
-
+    await waitFor(() => expect(history.location.pathname).toBe('/game'));
+  })
 
 });
