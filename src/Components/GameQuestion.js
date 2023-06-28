@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { apiSeachToken } from '../Redux/actions';
+import { apiSeachToken, buttonSelect, setScore } from '../Redux/actions';
 
 class GamesQuestion extends Component {
   state = {
@@ -32,23 +32,35 @@ class GamesQuestion extends Component {
 
   suffleQuestion = () => {
     const { question } = this.props;
-    const { incorrect_answers: incorrectAnswers } = question[0];
-    const correctAnswer = { correct: question[0].correct_answer };
-    const allAnswers = incorrectAnswers.concat(correctAnswer);
-    const suffleAnswers = this.shuffleArray(allAnswers);
-    return suffleAnswers;
+    if (question.length > 0) {
+      const { incorrect_answers: incorrectAnswers,
+        correct_answer: correctAnswer } = question[0];
+      const correctAnswerobj = { correct: correctAnswer };
+      const allAnswers = incorrectAnswers.concat(correctAnswerobj);
+      const suffleAnswers = this.shuffleArray(allAnswers);
+      return suffleAnswers;
+    }
   };
 
-  handleButtonClick = () => {
-    const { question } = this.props;
-    const { selectedAnswer } = this.state;
+  handleButton = (incorrect) => {
+    const { timer, dispatch, question, score } = this.props;
+    const { difficulty } = question[0];
+    dispatch(buttonSelect(true));
 
-    const isAnswerCorrect = selectedAnswer === question[0].correctAnswer;
-
-    if (isAnswerCorrect) {
-      console.log('Resposta correta!');
+    const ten = 10;
+    const three = 3;
+    if (incorrect.correct) {
+      if (difficulty === 'easy') {
+        dispatch(setScore(timer + ten));
+      }
+      if (difficulty === 'medium') {
+        dispatch(setScore(timer + three));
+      }
+      if (difficulty === 'hard') {
+        dispatch(setScore(timer + 1));
+      }
     } else {
-      console.log('Resposta incorreta!');
+      dispatch(setScore(score));
     }
     this.setState({ buttonClick: true });
   };
@@ -62,6 +74,7 @@ class GamesQuestion extends Component {
     const estiloBotaoRed = {
       border: '3px solid red',
     };
+
     return (
       <section>
         { question.length > 0 && (
@@ -69,14 +82,21 @@ class GamesQuestion extends Component {
             <h1 data-testid="question-category">{question[0].category}</h1>
             <h2 data-testid="question-text">{question[0].question}</h2>
             <div data-testid="answer-options">
-              {this.suffleQuestion().map((incorrect, index) => {
+              { buttonClick ? (
+                <button
+                  data-testid="btn-next"
+                >
+                  Próxima questão
+                </button>)
+                : '' }
+              { this.suffleQuestion().map((incorrect, index) => {
                 if (incorrect.correct) {
                   return (
                     <button
                       className="button-answer"
                       key={ index }
                       data-testid="correct-answer"
-                      onClick={ this.handleButtonClick }
+                      onClick={ () => this.handleButton(incorrect) }
                       style={ buttonClick ? estiloBotao : null }
                       disabled={ isTimeUp }
                     >
@@ -90,7 +110,7 @@ class GamesQuestion extends Component {
                     className="button-answer"
                     key={ index }
                     data-testid={ `wrong-answer-${index}` }
-                    onClick={ this.handleButtonClick }
+                    onClick={ () => this.handleButton(incorrect) }
                     style={ buttonClick ? estiloBotaoRed : null }
                     disabled={ isTimeUp }
                   >
@@ -107,12 +127,16 @@ class GamesQuestion extends Component {
   }
 }
 const mapStateToProps = (state) => ({
-  question: state.user.data,
+  question: state.player.data,
   isTimeUp: state.timer.isTimeUp.timeUp,
+  timer: state.timer.time,
+  score: state.player.score,
 });
 
 GamesQuestion.propTypes = {
   question: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  score: PropTypes.number.isRequired,
+  timer: PropTypes.number.isRequired,
   isTimeUp: PropTypes.bool.isRequired,
   dispatch: PropTypes.func.isRequired,
   history: PropTypes.shape({
