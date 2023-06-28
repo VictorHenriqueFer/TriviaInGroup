@@ -4,6 +4,7 @@ export const SET_USER_EMAIL = 'SET_USER_EMAIL';
 export const SET_USER_SCORE = 'SET_USER_SCORE';
 export const TIME_UP = 'TIME_UP';
 export const TIME_SECONDS = 'TIME_SECONDS';
+export const BUTTON_SELECT = 'BUTTON_SELECT';
 
 export const getPlay = (gettoken) => ({
   type: GET_USER_TOKEN,
@@ -30,6 +31,10 @@ export const isTimeUp = (timeUp) => ({
 export const isTimeSeconds = (time) => ({
   type: TIME_SECONDS,
   time,
+});
+export const buttonSelect = (button) => ({
+  type: 'BUTTON_SELECT',
+  button,
 });
 
 export const apiSeachSuccess = (data) => (

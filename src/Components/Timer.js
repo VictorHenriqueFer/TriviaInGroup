@@ -1,7 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { isTimeUp } from '../Redux/actions';
+import PropTypes from 'prop-types';
+import { isTimeSeconds, isTimeUp } from '../Redux/actions';
 
 class Timer extends React.Component {
   state = {
@@ -10,6 +10,17 @@ class Timer extends React.Component {
 
   componentDidMount() {
     this.startTimer();
+  }
+
+  componentDidUpdate() {
+    const { buttonSelect } = this.props;
+    if (buttonSelect) {
+      this.stopSeconds();
+    }
+  }
+
+  componentWillUnmount() {
+    this.stopTimer();
   }
 
   startTimer = () => {
@@ -24,6 +35,12 @@ class Timer extends React.Component {
         return { time: prevState.time - 1 };
       });
     }, milissegundos);
+  };
+
+  stopSeconds = () => {
+    const { dispatch } = this.props;
+    const { time } = this.state;
+    dispatch(isTimeSeconds(time));
   };
 
   stopTimer = () => {
@@ -47,8 +64,14 @@ class Timer extends React.Component {
     );
   }
 }
+const mapStateToProps = (state) => ({
+  time: state.timer.time,
+  buttonSelect: state.timer.buttonSelect,
+});
+
 Timer.propTypes = {
   dispatch: PropTypes.func.isRequired,
+  buttonSelect: PropTypes.bool.isRequired,
 };
 
-export default connect()(Timer);
+export default connect(mapStateToProps)(Timer);

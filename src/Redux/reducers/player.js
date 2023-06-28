@@ -10,7 +10,7 @@ const initialState = {
 
 };
 
-const user = (state = initialState, action) => {
+const player = (state = initialState, action) => {
   switch (action.type) {
   case SET_USER_EMAIL:
     return { ...state, gravatarEmail: action.gravatarEmail };
@@ -27,4 +27,4 @@ const user = (state = initialState, action) => {
   }
 };
 
-export default user;
+export default player;
