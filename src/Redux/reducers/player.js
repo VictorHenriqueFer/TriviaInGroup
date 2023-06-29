@@ -17,11 +17,13 @@ const player = (state = initialState, action) => {
   case SET_USER_NAME:
     return { ...state, name: action.name };
   case SET_USER_SCORE:
-    return { ...state, score: action.score };
+    return { ...state, score: state.score + action.payload };
   case 'API_SEARCH_SUCCESS':
     return { ...state, data: action.data };
   case 'API_SEARCH_ERROR':
     return { ...state, error: action.error };
+  case 'SET_USER_ASSERTIONS':
+    return { ...state, assertions: action.assertions };
   default:
     return state;
   }

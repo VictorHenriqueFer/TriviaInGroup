@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithRouterAndRedux } from './helpers/renderWithRouterAndRedux';
 import { act } from 'react-dom/test-utils';
 import App from '../App';

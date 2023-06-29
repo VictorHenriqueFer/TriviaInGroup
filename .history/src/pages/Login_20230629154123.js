@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { setPlayerName, setGravatarEmail } from '../Redux/actions';
-import { getToken } from '../services/apiRequest';
 
 class Login extends Component {
   state = {
@@ -18,14 +17,26 @@ class Login extends Component {
     );
   };
 
+  fetchToken = async () => {
+    const response = await fetch('https://opentdb.com/api_token.php?command=request');
+    const data = await response.json();
+    return data.token;
+  };
+
   handlePlayClick = async (event) => {
     event.preventDefault();
     const { history, dispatch } = this.props;
     const { name, gravatarEmail } = this.state;
     dispatch(setPlayerName(name));
     dispatch(setGravatarEmail(gravatarEmail));
-    const token = await getToken();
-    localStorage.setItem('token', token.token);
+    const token = localStorage.getItem('token');
+    console.log(token);
+    const invalidToken = 3;
+    if (token.response_code === invalidToken) {
+      localStorage.removeItem('token');
+      const newtoken = await this.fetchToken();
+      localStorage.setItem('token', newtoken);
+    }
     history.push('/game');
   };
 

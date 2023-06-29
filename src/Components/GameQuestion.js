@@ -1,28 +1,24 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { shape } from 'prop-types';
 import { connect } from 'react-redux';
-import { apiSeachToken, buttonSelect, setScore } from '../Redux/actions';
+import { apiSeachToken, buttonSelect, setAssertions, setScore } from '../Redux/actions';
 
 class GamesQuestion extends Component {
   state = {
     buttonClick: false,
+    questionIndex: 0,
   };
 
   async componentDidMount() {
-    const { dispatch } = this.props;
+    const { dispatch, history } = this.props;
 
     const token = localStorage.getItem('token');
     const invalidToken = await dispatch(apiSeachToken(token));
     if (invalidToken) {
-      this.logoutAndRedirect();
+      localStorage.removeItem('token');
+      history.push('/');
     }
   }
-
-  logoutAndRedirect = () => {
-    const { history } = this.props;
-    localStorage.removeItem('token');
-    history.push('/');
-  };
 
   shuffleArray = (array) => {
     const parameter = 0.5;
@@ -32,9 +28,10 @@ class GamesQuestion extends Component {
 
   suffleQuestion = () => {
     const { question } = this.props;
+    const { questionIndex } = this.state;
     if (question.length > 0) {
       const { incorrect_answers: incorrectAnswers,
-        correct_answer: correctAnswer } = question[0];
+        correct_answer: correctAnswer } = question[questionIndex];
       const correctAnswerobj = { correct: correctAnswer };
       const allAnswers = incorrectAnswers.concat(correctAnswerobj);
       const suffleAnswers = this.shuffleArray(allAnswers);
@@ -42,36 +39,51 @@ class GamesQuestion extends Component {
     }
   };
 
-  handleButton = (incorrect) => {
-    const { timer, dispatch, question, score } = this.props;
-    const { difficulty } = question[0];
+  handleButton = (answer) => {
+    const { timer, dispatch, question, score, assertions } = this.props;
+    const { questionIndex } = this.state;
+    const { difficulty } = question[questionIndex];
     dispatch(buttonSelect(true));
-
     const ten = 10;
     const three = 3;
-    if (incorrect.correct) {
+    if (answer.correct) {
       if (difficulty === 'easy') {
-        dispatch(setScore(timer + ten));
+        dispatch(setScore(ten + (timer * 1)));
+        dispatch(setAssertions(assertions + 1));
+      } else if (difficulty === 'medium') {
+        dispatch(setScore(ten + (timer * 2)));
+        dispatch(setAssertions(assertions + 1));
+      } else if (difficulty === 'hard') {
+        dispatch(setScore(ten + (timer * three)));
+        dispatch(setAssertions(assertions + 1));
+      } else {
+        dispatch(setScore(score));
       }
-      if (difficulty === 'medium') {
-        dispatch(setScore(timer + three));
-      }
-      if (difficulty === 'hard') {
-        dispatch(setScore(timer + 1));
-      }
-    } else {
-      dispatch(setScore(score));
     }
     this.setState({ buttonClick: true });
   };
 
+  handleNextQuestion = () => {
+    const { questionIndex } = this.state;
+    const { question } = this.props;
+    if (questionIndex < question.length - 1) {
+      this.setState((prevState) => ({
+        buttonClick: false,
+        questionIndex: prevState.questionIndex + 1,
+      }));
+    } else {
+      const { history } = this.props;
+      history.push('/feedback');
+    }
+  };
+
   render() {
     const { question, isTimeUp } = this.props;
-    const { buttonClick } = this.state;
-    const estiloBotao = {
+    const { buttonClick, questionIndex } = this.state;
+    const correctAnswer = {
       border: '3px solid rgb(6, 240, 15)',
     };
-    const estiloBotaoRed = {
+    const wrongAnswer = {
       border: '3px solid red',
     };
 
@@ -79,28 +91,29 @@ class GamesQuestion extends Component {
       <section>
         { question.length > 0 && (
           <div>
-            <h1 data-testid="question-category">{question[0].category}</h1>
-            <h2 data-testid="question-text">{question[0].question}</h2>
+            <h1 data-testid="question-category">{question[questionIndex].category}</h1>
+            <h2 data-testid="question-text">{question[questionIndex].question}</h2>
             <div data-testid="answer-options">
               { buttonClick ? (
                 <button
                   data-testid="btn-next"
+                  onClick={ () => this.handleNextQuestion() }
                 >
                   Próxima questão
                 </button>)
                 : '' }
-              { this.suffleQuestion().map((incorrect, index) => {
-                if (incorrect.correct) {
+              { this.suffleQuestion().map((answer, index) => {
+                if (answer.correct) {
                   return (
                     <button
                       className="button-answer"
                       key={ index }
                       data-testid="correct-answer"
-                      onClick={ () => this.handleButton(incorrect) }
-                      style={ buttonClick ? estiloBotao : null }
-                      disabled={ isTimeUp }
+                      onClick={ () => this.handleButton(answer) }
+                      style={ buttonClick ? correctAnswer : null }
+                      disabled={ isTimeUp || buttonClick }
                     >
-                      {incorrect.correct}
+                      {answer.correct}
 
                     </button>
                   );
@@ -110,11 +123,11 @@ class GamesQuestion extends Component {
                     className="button-answer"
                     key={ index }
                     data-testid={ `wrong-answer-${index}` }
-                    onClick={ () => this.handleButton(incorrect) }
-                    style={ buttonClick ? estiloBotaoRed : null }
-                    disabled={ isTimeUp }
+                    onClick={ () => this.handleButton(answer) }
+                    style={ buttonClick ? wrongAnswer : null }
+                    disabled={ isTimeUp || buttonClick }
                   >
-                    {incorrect}
+                    {answer}
 
                   </button>
                 );
@@ -128,14 +141,16 @@ class GamesQuestion extends Component {
 }
 const mapStateToProps = (state) => ({
   question: state.player.data,
-  isTimeUp: state.timer.isTimeUp.timeUp,
+  isTimeUp: state.timer.isTimeUp,
   timer: state.timer.time,
   score: state.player.score,
+  assertions: state.player.assertions,
 });
 
 GamesQuestion.propTypes = {
-  question: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
+  question: PropTypes.arrayOf(shape({})).isRequired,
   score: PropTypes.number.isRequired,
+  assertions: PropTypes.number.isRequired,
   timer: PropTypes.number.isRequired,
   isTimeUp: PropTypes.bool.isRequired,
   dispatch: PropTypes.func.isRequired,
