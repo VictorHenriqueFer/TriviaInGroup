@@ -13,10 +13,9 @@ class Timer extends React.Component {
   }
 
   componentDidUpdate() {
-    const { buttonSelect } = this.props;
-    if (buttonSelect) {
-      this.stopSeconds();
-    }
+    // if (buttonSelect) {
+    //   this.stopSeconds();
+    // }
   }
 
   componentWillUnmount() {
@@ -32,16 +31,17 @@ class Timer extends React.Component {
           this.stopTimer();
           dispatch(isTimeUp(true));
         }
+        dispatch(isTimeSeconds(prevState.time - 1));
         return { time: prevState.time - 1 };
       });
     }, milissegundos);
   };
 
-  stopSeconds = () => {
-    const { dispatch } = this.props;
-    const { time } = this.state;
-    dispatch(isTimeSeconds(time));
-  };
+  // stopSeconds = () => {
+  //   const { dispatch } = this.props;
+  //   const { time } = this.state;
+  //   dispatch(isTimeSeconds(time));
+  // };
 
   stopTimer = () => {
     clearInterval(this.interval);
@@ -71,7 +71,7 @@ const mapStateToProps = (state) => ({
 
 Timer.propTypes = {
   dispatch: PropTypes.func.isRequired,
-  buttonSelect: PropTypes.bool.isRequired,
+  // buttonSelect: PropTypes.bool.isRequired,
 };
 
 export default connect(mapStateToProps)(Timer);

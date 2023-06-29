@@ -11,11 +11,11 @@ const initialState = {
 const timer = (state = initialState, action) => {
   switch (action.type) {
   case TIME_UP:
-    return { isTimeUp: action };
+    return { ...state, isTimeUp: action.payload };
   case TIME_SECONDS:
-    return { time: action };
+    return { ...state, time: action.payload };
   case BUTTON_SELECT:
-    return { buttonSelect: action };
+    return { ...state, buttonSelect: action };
   default:
     return state;
   }

@@ -16,22 +16,32 @@ export const setPlayerName = (name) => ({
   name,
 
 });
+
 export const setGravatarEmail = (gravatarEmail) => ({
   type: SET_USER_EMAIL,
   gravatarEmail,
 });
+
 export const setScore = (score) => ({
   type: SET_USER_SCORE,
-  score,
+  payload: score,
 });
+
+export const setAssertions = (assertions) => ({
+  type: 'SET_USER_ASSERTIONS',
+  assertions,
+});
+
 export const isTimeUp = (timeUp) => ({
   type: TIME_UP,
-  timeUp,
+  payload: timeUp,
 });
+
 export const isTimeSeconds = (time) => ({
   type: TIME_SECONDS,
-  time,
+  payload: time,
 });
+
 export const buttonSelect = (button) => ({
   type: 'BUTTON_SELECT',
   button,
